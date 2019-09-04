@@ -291,12 +291,13 @@ function update (time, delta)
         }
         else if (snake.collideWithFood(badFood) || (snake.collideWithFood(badFood2))) {
             lose();
+            return;
         }
     }
 }
 
 function lose() {
-    this.alive = false;
+    snake.alive = false;
     alert ("Game over! You spelled: " + snake.spelled);
 }
 
