@@ -23,7 +23,6 @@
 var snake;
 var food;
 var cursors;
-var banana = ['b', 'a', 'n', 'a', 'n', 'a'];
 
 //  Direction consts
 var UP = 0;
@@ -35,8 +34,9 @@ var game = new Phaser.Game(config);
 
 function preload ()
 {
-    this.load.image('food', 'assets/b.png');
-    this.load.image('body', 'assets/body.png');
+    this.load.image('a', 'assets/a.png');
+    this.load.image('n', 'assets/n.png');
+    this.load.image('body', 'assets/b.png');
 }
 
 function create ()
@@ -47,15 +47,16 @@ function create ()
 
         initialize:
 
-        function Food (scene, x, y)
+        function Food (scene, x, y, letter)
         {
             Phaser.GameObjects.Image.call(this, scene)
 
-            this.setTexture('food');
+            this.setTexture(letter);
             this.setPosition(x * 16, y * 16);
             this.setOrigin(0);
 
             this.total = 0;
+            this.letter = letter;
 
             scene.children.add(this);
         },
@@ -73,6 +74,7 @@ function create ()
 
         function Snake (scene, x, y)
         {
+            this.spelled = "b";
             this.headPosition = new Phaser.Geom.Point(x, y);
 
             this.body = scene.add.group();
@@ -81,7 +83,7 @@ function create ()
             this.head.setOrigin(0);
 
             this.alive = true;
-            this.spellingPosition = -1;
+            this.aNext = true; // next letter is A
 
             this.speed = 100;
 
@@ -173,7 +175,7 @@ function create ()
                 console.log('dead');
 
                 this.alive = false;
-                alert ("Game over! You spelled: ");
+                alert ("Game over! You spelled: " + this.spelled);
 
                 return false;
             }
@@ -186,9 +188,9 @@ function create ()
             }
         },
 
-        grow: function ()
+        grow: function (letter)
         {
-            var newPart = this.body.create(this.tail.x, this.tail.y, 'body');
+            var newPart = this.body.create(this.tail.x, this.tail.y, letter);
 
             newPart.setOrigin(0);
         },
@@ -197,9 +199,16 @@ function create ()
         {
             if (this.head.x === food.x && this.head.y === food.y)
             {
-                this.spellingPosition++;
-                
-                this.grow();
+                if (food.letter == 'a') {
+                    this.nextA = false;
+                    snake.spelled += 'a';
+                }
+                else {
+                    this.nextA = true;
+                    snake.spelled += 'n';
+                }
+
+                this.grow(food.letter);
 
                 food.eat();
 
@@ -234,7 +243,7 @@ function create ()
 
     });
 
-    food = new Food(this, 3, 4);
+    food = new Food(this, 3, 4, 'a');
 
     snake = new Snake(this, 8, 8);
 
@@ -332,8 +341,10 @@ function repositionFood ()
     {
         //  Use the RNG to pick a random food position
         var pos = Phaser.Math.RND.pick(validLocations);
+        var letter = snake.nextA ? 'a' : 'n';
 
-        //  And place it
+        food.letter = letter;
+        food.setTexture(letter);
         food.setPosition(pos.x * 16, pos.y * 16);
 
         return true;
