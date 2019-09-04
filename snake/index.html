@@ -23,6 +23,7 @@
 var snake;
 var food;
 var cursors;
+var banana = ['b', 'a', 'n', 'a', 'n', 'a'];
 
 //  Direction consts
 var UP = 0;
@@ -80,6 +81,7 @@ function create ()
             this.head.setOrigin(0);
 
             this.alive = true;
+            this.spellingPosition = -1;
 
             this.speed = 100;
 
@@ -171,6 +173,7 @@ function create ()
                 console.log('dead');
 
                 this.alive = false;
+                alert ("Game over! You spelled: ");
 
                 return false;
             }
@@ -194,6 +197,8 @@ function create ()
         {
             if (this.head.x === food.x && this.head.y === food.y)
             {
+                this.spellingPosition++;
+                
                 this.grow();
 
                 food.eat();
